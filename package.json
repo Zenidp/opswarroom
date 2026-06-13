@@ -1,0 +1,31 @@
+{
+  "name": "opswarroom",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx --env-file=.env.local scripts/seed-splunk.ts"
+  },
+  "dependencies": {
+    "next": "15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@modelcontextprotocol/sdk": "^1.10.0",
+    "uuid": "^11.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^10",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
