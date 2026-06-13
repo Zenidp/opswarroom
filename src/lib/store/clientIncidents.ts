@@ -45,3 +45,13 @@ export function listClientIncidents(): Incident[] {
     (a, b) => new Date(b.triggeredAt).getTime() - new Date(a.triggeredAt).getTime()
   )
 }
+
+/** Records operator approval of an incident's runbook; returns the updated incident. */
+export function markIncidentApproved(id: string): Incident | undefined {
+  const list = readAll()
+  const incident = list.find(i => i.id === id)
+  if (!incident) return undefined
+  incident.approvedAt = new Date().toISOString()
+  writeAll(list)
+  return incident
+}

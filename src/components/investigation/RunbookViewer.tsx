@@ -2,9 +2,16 @@
 
 import { useState } from 'react'
 import type { Incident } from '@/lib/agent/types'
+import { markIncidentApproved } from '@/lib/store/clientIncidents'
 
 export function RunbookViewer({ incident }: { incident: Incident }) {
-  const [approved, setApproved] = useState(false)
+  const [approvedAt, setApprovedAt] = useState<string | undefined>(incident.approvedAt)
+  const approved = !!approvedAt
+
+  function approve() {
+    const updated = markIncidentApproved(incident.id)
+    setApprovedAt(updated?.approvedAt ?? new Date().toISOString())
+  }
 
   function exportMarkdown() {
     const lines = [
@@ -45,15 +52,18 @@ export function RunbookViewer({ incident }: { incident: Incident }) {
             Export .md
           </button>
           <button
-            onClick={() => setApproved(true)}
+            onClick={approve}
             disabled={approved}
+            title={approvedAt ? `Approved at ${new Date(approvedAt).toLocaleString()}` : undefined}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               approved
                 ? 'bg-emerald-500/20 text-emerald-400'
                 : 'bg-cyan-500 text-surface hover:bg-cyan-400'
             }`}
           >
-            {approved ? '✓ Approved' : 'Approve'}
+            {approved
+              ? `✓ Approved ${new Date(approvedAt!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+              : 'Approve'}
           </button>
         </div>
       </div>

@@ -28,8 +28,8 @@ export async function correlateContext(
 
   for (const st of correlationSourcetypes) {
     const corrSpl = services.length > 0
-      ? `index=main sourcetype=${st} (${services.map(s => `service="${s}"`).join(' OR ')} OR action=dropped OR cpu_pct>80) earliest=-30m | head 20`
-      : `index=main sourcetype=${st} earliest=-30m | head 10`
+      ? `index=main sourcetype=${st} (${services.map(s => `service="${s}"`).join(' OR ')} OR action=dropped OR cpu_pct>80) earliest=-3h | head 20`
+      : `index=main sourcetype=${st} earliest=-3h | head 10`
 
     const result = await runSplunkQuery(corrSpl)
     if (result.events.length > 0) {

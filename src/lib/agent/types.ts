@@ -30,6 +30,8 @@ export interface Incident {
   steps: AgentStep[]
   runbook: RunbookEntry[]
   status: 'investigating' | 'complete' | 'error'
+  /** ISO timestamp when an operator approved the runbook (human-in-the-loop) */
+  approvedAt?: string
 }
 
 export interface InvestigateRequest {

@@ -1,0 +1,29 @@
+name: Seed Splunk demo data
+
+# Keeps the live demo fresh: the app detects "recent" incidents over time
+# windows, so synthetic demo data must be re-emitted periodically — exactly as a
+# real telemetry pipeline would stream metrics into Splunk continuously.
+# Requires repo secrets: SPLUNK_HEC_URL, SPLUNK_HEC_TOKEN
+
+on:
+  schedule:
+    - cron: '*/20 * * * *' # every 20 minutes
+  workflow_dispatch: {}     # allow manual runs from the Actions tab
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - name: Write .env.local from secrets
+        run: |
+          {
+            echo "SPLUNK_HEC_URL=${{ secrets.SPLUNK_HEC_URL }}"
+            echo "SPLUNK_HEC_TOKEN=${{ secrets.SPLUNK_HEC_TOKEN }}"
+          } > .env.local
+      - name: Seed Splunk via HEC
+        run: npm run seed

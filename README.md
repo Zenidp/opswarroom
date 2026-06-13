@@ -74,6 +74,14 @@ npm run seed
 
 This creates realistic sample events in Splunk (CPU spike → app error cascade scenario).
 
+> **Keeping the live demo fresh:** the agent detects *recent* incidents over time windows,
+> so static demo data ages out. In production this never happens — real telemetry streams in
+> continuously. For the hosted demo, a scheduled GitHub Actions workflow
+> ([.github/workflows/seed.yml](.github/workflows/seed.yml)) re-seeds every 20 minutes, simulating
+> that live stream. To enable it, add two repository secrets (Settings → Secrets and variables →
+> Actions): `SPLUNK_HEC_URL` and `SPLUNK_HEC_TOKEN`. You can also trigger it manually from the
+> Actions tab, or just run `npm run seed` locally before a demo.
+
 ### 4. Run locally
 
 ```bash

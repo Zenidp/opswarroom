@@ -87,15 +87,15 @@ export async function generateSPL(description: string): Promise<string> {
   // Fallback: keyword-based SPL
   const lower = description.toLowerCase()
   if (lower.includes('cpu') || lower.includes('spike') || lower.includes('metric')) {
-    return `index=main sourcetype=infra_metric earliest=-30m | where cpu_pct > 80 | head 50`
+    return `index=main sourcetype=infra_metric earliest=-3h | where cpu_pct > 80 | head 50`
   }
   if (lower.includes('error') || lower.includes('fail') || lower.includes('exception')) {
-    return `index=main (error_code=TIMEOUT OR error_code=CONNECTION_REFUSED OR severity=ERROR) earliest=-30m | head 50`
+    return `index=main (error_code=TIMEOUT OR error_code=CONNECTION_REFUSED OR severity=ERROR) earliest=-3h | head 50`
   }
   if (lower.includes('network') || lower.includes('traffic')) {
-    return `index=main sourcetype=net_event earliest=-30m | head 50`
+    return `index=main sourcetype=net_event earliest=-3h | head 50`
   }
-  return `index=main earliest=-30m | head 50`
+  return `index=main earliest=-3h | head 50`
 }
 
 export async function explainSPL(spl: string, results: string): Promise<string> {
