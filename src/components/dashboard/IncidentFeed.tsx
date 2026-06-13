@@ -7,7 +7,7 @@ import { IncidentCard } from './IncidentCard'
 import { AgentTrace } from '@/components/investigation/AgentTrace'
 import { Spinner } from '@/components/ui/Spinner'
 import { ToastStack, type ToastMessage } from '@/components/ui/Toast'
-import { saveClientIncident, listClientIncidents } from '@/lib/store/clientIncidents'
+import { saveClientIncident, listClientIncidents, clearClientIncidents } from '@/lib/store/clientIncidents'
 
 const DEFAULT_QUERY = 'CPU spike on web-prod hosts causing app error cascade'
 
@@ -137,9 +137,23 @@ export function IncidentFeed() {
       )}
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-          Incident history ({incidents.length})
-        </h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">
+            Incident history ({incidents.length})
+          </h2>
+          {incidents.length > 0 && (
+            <button
+              onClick={() => {
+                clearClientIncidents()
+                setIncidents([])
+                pushToast('Incident history cleared', 'success')
+              }}
+              className="rounded-lg border border-surface-border px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:border-red-500/50 hover:text-red-400"
+            >
+              Clear history
+            </button>
+          )}
+        </div>
         {incidents.length === 0 ? (
           <p className="rounded-xl border border-dashed border-surface-border p-8 text-center text-sm text-slate-500">
             No incidents yet. Trigger an investigation to get started.

@@ -46,6 +46,16 @@ export function listClientIncidents(): Incident[] {
   )
 }
 
+/** Clears all locally stored incidents. */
+export function clearClientIncidents(): void {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.removeItem(KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Records operator approval of an incident's runbook; returns the updated incident. */
 export function markIncidentApproved(id: string): Incident | undefined {
   const list = readAll()
