@@ -42,15 +42,9 @@ export async function runInvestigation(
       spl: detect.spl,
       mlSpl: detect.mlSpl,
       mlSummary: detect.ml.summary,
-      mlAnomalyCount: detect.ml.anomaly.anomalyCount,
-      mlAffectedHosts: detect.ml.anomaly.affectedHosts,
-      mlForecast: {
-        field: detect.ml.forecast.field,
-        predicted: detect.ml.forecast.predicted,
-        upper95: detect.ml.forecast.upper95,
-        lower95: detect.ml.forecast.lower95,
-        baseline: detect.ml.forecast.baseline,
-      },
+      mlAnomalyCount: detect.ml.anomalyCount,
+      mlAffectedHosts: detect.ml.affectedHosts,
+      mlForecast: detect.ml.forecast,
     })
 
     // Step 2: Correlate

@@ -31,11 +31,9 @@ export async function detectAnomaly(query: string): Promise<DetectResult> {
 
   const baselineCount = Number(baselineResult.events?.[0]?.baseline_count ?? 0)
 
-  // Anomaly duration comes from the ML-flagged window when available, with a
-  // sane floor so severity scoring stays meaningful.
-  const anomalyDurationMinutes = ml.anomaly.windowMinutes > 0
-    ? ml.anomaly.windowMinutes
-    : 15
+  // Anomaly duration comes from the ML elevated-event window when available,
+  // with a sane floor so severity scoring stays meaningful.
+  const anomalyDurationMinutes = ml.windowMinutes > 0 ? ml.windowMinutes : 15
 
   return {
     spl,
