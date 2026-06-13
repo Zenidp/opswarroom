@@ -372,6 +372,7 @@ opswarroom/
 
 ## 🗺️ Roadmap
 
+- [ ] **Query-driven detection** — route the investigation by signal type (metrics → `predict`/`anomalydetection`, errors → rate analysis on `app_error`, network → `net_event`) so the agent adapts to the described anomaly
 - [ ] Persist incidents to Vercel KV / Postgres
 - [ ] Splunk SOAR integration to actually execute approved runbooks
 - [ ] Webhook ingestion (PagerDuty, Opsgenie) to auto-trigger investigations

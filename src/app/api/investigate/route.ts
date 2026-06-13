@@ -6,7 +6,11 @@ import { z } from 'zod'
 export const maxDuration = 55 // Vercel max, leave 5s buffer
 
 const RequestSchema = z.object({
-  query: z.string().min(1).max(2000),
+  query: z.string().max(2000)
+    .transform(s => s.trim())
+    .refine(q => q.length >= 8 && q.split(/\s+/).filter(Boolean).length >= 2, {
+      message: 'Describe the anomaly in a few words — e.g. "CPU spike on api-gateway".',
+    }),
   context: z.string().max(500).optional().default(''),
 })
 
@@ -20,7 +24,8 @@ export async function POST(req: NextRequest) {
 
   const parsed = RequestSchema.safeParse(body)
   if (!parsed.success) {
-    return new Response(JSON.stringify({ error: parsed.error.flatten() }), { status: 422 })
+    const message = parsed.error.issues[0]?.message ?? 'Invalid request'
+    return new Response(JSON.stringify({ error: message }), { status: 422 })
   }
 
   const { query, context } = parsed.data

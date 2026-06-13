@@ -39,7 +39,14 @@ export function IncidentFeed() {
   }, [loadIncidents])
 
   async function triggerInvestigation() {
-    if (investigating || !query.trim()) return
+    if (investigating) return
+    const q = query.trim()
+    // Require a minimally meaningful description so trivial input (e.g. "a")
+    // doesn't produce a confident incident.
+    if (q.length < 8 || q.split(/\s+/).filter(Boolean).length < 2) {
+      pushToast('Describe the anomaly in a few words — e.g. "CPU spike on api-gateway"', 'error')
+      return
+    }
     setInvestigating(true)
     setLiveSteps([])
 
