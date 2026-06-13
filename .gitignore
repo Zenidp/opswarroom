@@ -20,3 +20,4 @@ next-env.d.ts
 
 # internal working notes (contain real Splunk tokens — never commit)
 context.md
+.vercel
