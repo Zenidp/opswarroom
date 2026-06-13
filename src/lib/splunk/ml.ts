@@ -54,9 +54,16 @@ async function forecastTrend(sourcetype: string, field: string, earliest: string
   const spl =
     `search index=main sourcetype=${sourcetype} earliest=${earliest} ` +
     `| timechart span=5m avg(${field}) as ${field} ` +
-    `| predict ${field} as predicted | tail 1`
+    `| predict ${field} as predicted`
   const { events } = await runSplunkQuery(spl)
-  const row = events[0] ?? {}
+
+  // Pick the most recent row that actually carries a numeric prediction. Taking
+  // the last row blindly is fragile — predict can append edge rows without a
+  // value, which would surface as 0.0.
+  const valid = events
+    .filter(r => Number.isFinite(Number(r.predicted)) && Number(r.predicted) > 0)
+    .sort((a, b) => new Date(String(a._time)).getTime() - new Date(String(b._time)).getTime())
+  const row = valid[valid.length - 1] ?? {}
 
   const baseRes = await runSplunkQuery(
     `search index=main sourcetype=${sourcetype} earliest=${earliest} latest=-30m | stats avg(${field}) as baseline`
@@ -71,7 +78,7 @@ async function forecastTrend(sourcetype: string, field: string, earliest: string
       lower95: num(row['lower95(predicted)']),
       baseline,
     },
-    spl,
+    spl: `${spl} | tail 1`,
   }
 }
 
@@ -115,11 +122,15 @@ export async function runMetricML(
 
   const ratio = forecast.baseline > 0 ? forecast.predicted / forecast.baseline : 0
   const parts: string[] = []
-  parts.push(
-    `Splunk predict (ML forecasting) projects ${field} at ${forecast.predicted.toFixed(1)}` +
-      (ratio > 0 ? ` — ${ratio.toFixed(1)}× the ${forecast.baseline.toFixed(1)} baseline` : '') +
-      ` (95% CI ${forecast.lower95.toFixed(1)}–${forecast.upper95.toFixed(1)}).`
-  )
+  // Only surface the predict sentence when the forecast is valid, so a momentary
+  // edge case never shows "0.0".
+  if (forecast.predicted > 0) {
+    parts.push(
+      `Splunk predict (ML forecasting) projects ${field} at ${forecast.predicted.toFixed(1)}` +
+        (ratio > 0 ? ` — ${ratio.toFixed(1)}× the ${forecast.baseline.toFixed(1)} baseline` : '') +
+        ` (95% CI ${forecast.lower95.toFixed(1)}–${forecast.upper95.toFixed(1)}).`
+    )
+  }
   if (elevatedCount > 0) {
     parts.push(
       `${elevatedCount} ${field} reading(s) exceeded ${threshold.toFixed(1)}, peaking at ${peakValue.toFixed(1)}` +
@@ -128,6 +139,9 @@ export async function runMetricML(
   }
   if (ad.count > 0) {
     parts.push(`Splunk anomalydetection independently flagged ${ad.count} as statistical outlier(s).`)
+  }
+  if (parts.length === 0) {
+    parts.push(`No significant ${field} anomaly detected in the window.`)
   }
 
   return {
