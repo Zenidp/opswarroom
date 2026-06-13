@@ -126,9 +126,13 @@ See [architecture_diagram.md](./architecture_diagram.md) for full data flow diag
 
 ## Known limitations & future work
 
-- Incident store is in-memory (no persistence) — production would use Postgres/Redis
+- Incident history is persisted in the browser (localStorage), so investigations are visible
+  per-browser/session; the server keeps only a short-lived in-memory cache (Vercel serverless
+  is stateless across invocations). Production would use Postgres/Redis (e.g. Vercel KV).
 - No authentication layer — production would add Splunk RBAC passthrough
 - No webhook integrations (PagerDuty, Slack) — planned as next feature
+- Splunk AI Assistant (`saia_*`) and hosted GPT models are not provisioned on the Splunk Cloud
+  trial tier; runtime AI is provided by native SPL ML (`anomalydetection`, `predict`)
 
 ## License
 

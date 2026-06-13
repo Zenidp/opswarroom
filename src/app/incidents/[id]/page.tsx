@@ -1,20 +1,41 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getIncident } from '@/lib/store/incidents'
+import type { Incident } from '@/lib/agent/types'
+import { getClientIncident } from '@/lib/store/clientIncidents'
 import { AgentTrace } from '@/components/investigation/AgentTrace'
 import { RunbookViewer } from '@/components/investigation/RunbookViewer'
 import { SeverityBadge, Badge } from '@/components/ui/Badge'
 
-export const dynamic = 'force-dynamic'
+export default function IncidentDetailPage() {
+  const params = useParams<{ id: string }>()
+  const [incident, setIncident] = useState<Incident | null>(null)
+  const [loading, setLoading] = useState(true)
 
-export default async function IncidentDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await params
-  const incident = getIncident(id)
-  if (!incident) notFound()
+  useEffect(() => {
+    setIncident(getClientIncident(params.id) ?? null)
+    setLoading(false)
+  }, [params.id])
+
+  if (loading) {
+    return <p className="text-sm text-slate-400">Loading incident…</p>
+  }
+
+  if (!incident) {
+    return (
+      <div className="space-y-4">
+        <Link href="/" className="text-sm text-cyan-400 hover:underline">
+          ← Back to dashboard
+        </Link>
+        <p className="rounded-xl border border-dashed border-surface-border p-8 text-center text-sm text-slate-500">
+          This incident isn’t available in this browser. Incidents are stored locally per
+          session — trigger a new investigation from the dashboard.
+        </p>
+      </div>
+    )
+  }
 
   const time = new Date(incident.triggeredAt).toLocaleString('en-US', {
     dateStyle: 'medium', timeStyle: 'short',

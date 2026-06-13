@@ -7,6 +7,7 @@ import { IncidentCard } from './IncidentCard'
 import { AgentTrace } from '@/components/investigation/AgentTrace'
 import { Spinner } from '@/components/ui/Spinner'
 import { ToastStack, type ToastMessage } from '@/components/ui/Toast'
+import { saveClientIncident, listClientIncidents } from '@/lib/store/clientIncidents'
 
 const DEFAULT_QUERY = 'CPU spike on web-prod hosts causing app error cascade'
 
@@ -27,14 +28,10 @@ export function IncidentFeed() {
     setToasts(prev => prev.filter(t => t.id !== id))
   }, [])
 
-  const loadIncidents = useCallback(async () => {
-    try {
-      const res = await fetch('/api/incidents')
-      const data = await res.json()
-      setIncidents(data.incidents ?? [])
-    } catch {
-      // ignore — feed simply stays empty
-    }
+  const loadIncidents = useCallback(() => {
+    // History is read from the browser store: the server-side Map does not
+    // persist across Vercel serverless invocations.
+    setIncidents(listClientIncidents())
   }, [])
 
   useEffect(() => {
@@ -91,8 +88,9 @@ export function IncidentFeed() {
       }
 
       if (completedIncident) {
+        saveClientIncident(completedIncident)
         pushToast('Investigation complete', 'success')
-        await loadIncidents()
+        loadIncidents()
         router.push(`/incidents/${completedIncident.id}`)
       }
     } catch (err) {
